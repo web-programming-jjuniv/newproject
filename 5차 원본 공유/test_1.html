@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 교차로 제어 시스템</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            background: url('./images/image.jpg') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            justify-content: center;
+            align-items: center;
+            background-color: #A0B9B7;
+            transition: background-position 1s ease, background-color 0.5s ease;
+        }
+
+        .header-title {
+            color: #FAF6E8;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.7);
+            font-size: 2.5rem;
+        }
+
+        footer {
+            color: #ffffff;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 0.9rem;
+            background-color: rgba(0, 0, 0, 0.6);
+            width: 100%;
+            position: absolute;
+            bottom: 0;
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            background-color: rgba(255, 255, 255, 0.85);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            max-width: 300px;
+        }
+
+ /*//////////////////////////////////////////////////////////////////////////////*/
+        .bluetooth-container:hover .bluetooth-buttons {
+    display: flex; /* 컨테이너에 마우스를 올리면 추가 버튼 표시 */
+}
+
+/* 기본적으로 숨겨둠 */
+.bluetooth-buttons {
+    display: none;
+    flex-direction: column; /* 세로 정렬 */
+    gap: 10px;
+    position: absolute  ; /* 부모 기준 위치 설정 */
+    top: -120%; /* 버튼 바로 아래로 이동 */
+    left:180px;
+
+    background-color: rgba(255, 255, 255, 0.85);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+/* "블루투스" 버튼 위치 설정 */
+.bluetooth-container {
+    position: relative; /* 자식 요소(.bluetooth-buttons)를 기준으로 위치 설정 */
+}
+
+/* 버튼 스타일 */
+.bluetooth-buttons button {
+    padding: 10px 10px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 250px;
+    color: white;
+}        
+
+.button-bluetooth {
+    width: 180px; /* 원하는 크기로 수정 */
+    height: 40px; /* 버튼 높이 추가 */
+    font-size: 1rem; /* 텍스트 크기도 조정 */
+}
+
+/*//////////////////////////////////////////////////////////////////////////////*/
+        /* .etc-container에 hover 이벤트 적용 */
+.etc-container:hover .more-buttons {
+    display: flex; /* 컨테이너에 마우스를 올리면 추가 버튼 표시 */
+}
+
+/* 기본적으로 숨겨둠 */
+.more-buttons {
+    display: none;
+    flex-direction: column; /* 세로 정렬 */
+    gap: 10px;
+    position: absolute  ; /* 부모 기준 위치 설정 */
+    top: -230%; /* 버튼 바로 아래로 이동 */
+    left:180px;
+
+    background-color: rgba(255, 255, 255, 0.85);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+/* "더보기" 버튼 위치 설정 */
+
+.etc-container {
+    position: relative; /* 자식 요소(.more-buttons)를 기준으로 위치 설정 */
+}
+
+/* 버튼 스타일 */
+.more-buttons button {
+    padding: 10px 10px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 250px;
+    color: white;
+}
+.button-etc {
+    width: 180px; /* 원하는 크기로 수정 */
+    height: 40px; /* 버튼 높이 추가 */
+    font-size: 1rem; /* 텍스트 크기도 조정 */
+}
+
+        .loading-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            color: #f39c12;
+            font-size: 1.5rem;
+            background-color: #A0B9B7;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            border: 6px solid rgba(255, 255, 255, 0.3);
+            border-top: 6px solid #f39c12;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        button {
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        .button-led_control { background-color: #28a745; }
+        .button-bluetooth { background-color: #007bff; }
+        .button-guide { background-color: #ffc107; }
+        .button-etc { background-color: #dc3545; }
+
+        .button-intro { background-color: #28a745; }
+        .button-purchase { background-color: #ffc107; }
+        .button-discord { background-color: #5865F2; }
+        .button-creator { background-color: #dc3545; }
+
+
+        .button-led_control:hover { background-color: #218838; }
+        .button-bluetooth:hover { background-color: #0056b3; }
+        .button-guide:hover { background-color: #e0a800; }
+        .button-etc:hover { background-color: #c82333; }
+
+        .button-intro:hover { background-color: #218838; }
+        .button-purchase:hover { background-color: #e0a800; }
+        .button-discord:hover { background-color: #4752C4; }
+        .button-creator:hover { background-color: #c82333; }
+
+        .button-connect { background-color: #007bff;}
+        .button-disconnect { background-color: #dc3545; }
+        .button-connect:hover {background-color: #0056b3;}
+        .button-disconnect:hover {background-color: #c82333;}
+        .button-connect img,
+        .button-disconnect img {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body id="body">
+    <header>
+        <h1 class="header-title" id="headerTitle">ESP32<br>교차로 제어 시스템</h1>
+    </header>
+
+    <main>
+        <section class="button-container" id="buttonContainer">
+            <button class="button-led_control" onclick="displayMessageAndMove('LED 제어 모드 실행 중입니다. 잠시만 기다려주세요...', 'LEDcontrol.html', 45)">LED 제어 모드</button>
+            <button class="button-guide" onclick="displayMessageAndMove('사용설명서로 이동 중입니다...', 'guide.html', 225)">사용 설명서</button>
+            <div class="bluetooth-container">
+                <button class="button-bluetooth" onclick="displayMessageAndMove('블루투스 설정창 이동 중입니다. 잠시만 기다려주세요...', 'bluetooth.html', 135)">bluetooth 연결/해제</button>
+            </style>
+        </head>
+        <body>
+            <div class="bluetooth-buttons">
+                <button class="button-connect" onclick="connectBluetooth()">
+                    <img src="./images/bluetooth.png" alt="Bluetooth Connect">
+                    bluetooth 연결
+                </button>
+                <button class="button-disconnect" onclick="disconnectBluetooth()">
+                    <img src="./images/bluetooth.png" alt="Bluetooth Disconnect">
+                    bluetooth 연결해제
+                </button>
+            </div>
+        
+            <script>
+                function connectBluetooth() {
+                    console.log("Bluetooth 연결 시작"); // 실제 로직을 여기에 추가
+                }
+        
+                function disconnectBluetooth() {
+                    console.log("Bluetooth 연결 해제"); // 실제 로직을 여기에 추가
+                }
+            </script>
+        </body>
+            </div>
+            <div class="etc-container">
+                <button class="button-etc" onclick="displayMessageAndMove('추가 정보란으로 이동 중입니다...', 'newpage.html', 315)">더보기</button>
+                <div class="more-buttons">
+                    <button class="button-intro" onclick="window.open('https://www.espressif.com/en/products/socs/esp32', '_blank')">ESP 모듈 소개</button>
+                    <button class="button-purchase" onclick="window.open('https://ko.aliexpress.com/w/wholesale-esp32.html?spm=a2g0o.detail.search.0', '_blank')">구매 사이트</button>
+                    <button class="button-discord" onclick="window.open('https://discord.gg/4ZM5UXphJk', '_blank')">디스코드 문의</button>
+                    <button class="button-creator" onclick="window.open('Production_team.html', '_blank')">제작자 정보</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="loading-container" id="loadingContainer">
+            <p id="loadingText">잠시만 기다려주세요...</p>
+            <div class="spinner"></div>
+        </section>
+    </main>
+
+    <footer id="footer">
+        <p>© 2024 Cross Road. 제작자: 김채운, 남궁동근, 김병현, 김태우, 라원준</p>
+    </footer>
+
+    <script>
+        function displayMessageAndMove(message, url, direction) {
+            // 클릭한 버튼에 따라 로딩 메시지와 배경 이동 방향을 설정하는 함수+url 매개변수
+            document.getElementById('buttonContainer').style.display = 'none';
+            document.getElementById('headerTitle').style.opacity = '0';
+            document.getElementById('footer').style.opacity = '0';
+
+            document.body.style.transition = 'background-position 1s ease';
+            switch (direction) {
+                case 135:
+                    document.body.style.backgroundPosition = '100vw 100vh';
+                    break;
+                case 225:
+                    document.body.style.backgroundPosition = '-100vw 100vh';
+                    break;
+                case 45:
+                    document.body.style.backgroundPosition = '100vw -100vh';
+                    break;
+                case 315:
+                    document.body.style.backgroundPosition = '-100vw -100vh';
+                    break;
+            }
+
+            setTimeout(() => {
+                document.getElementById('loadingContainer').style.display = 'flex';
+                document.getElementById('loadingText').innerText = message;
+
+                setTimeout(() => {
+                    window.open(url, '_blank', 'width=800,height=600'); // 지정된 URL 열기
+                    document.body.style.backgroundPosition = 'center center';
+                    document.body.style.backgroundColor = '';
+                    document.getElementById('loadingContainer').style.display = 'none';
+                    document.getElementById('buttonContainer').style.display = 'flex';
+                    document.getElementById('headerTitle').style.opacity = '1';
+                    document.getElementById('footer').style.opacity = '1';
+                }, 1000);
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

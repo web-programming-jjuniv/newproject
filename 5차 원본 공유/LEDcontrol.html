@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LED 제어 모드</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 200px;
+            color: white;
+        }
+
+        .button-auto { background-color: #28a745; }
+        .button-manual { background-color: #ffc107; }
+        .button-end { background-color: #dc3545; }
+
+        .button-auto:hover { background-color: #218838; }
+        .button-manual:hover { background-color: #e0a800; }
+        .button-end:hover { background-color: #c82333; }
+
+        /* 사이드바 스타일 */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -100%; /* 기본적으로 화면 밖에 숨김 */
+            width: 300px;
+            height: 100%;
+            background-color: #ffffff;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+            transition: right 0.4s ease-in-out; /* 부드러운 이동 */
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            gap: 20px;
+            z-index: 1000;
+        }
+
+        .sidebar.active {
+            right: 0; /* 활성화되면 화면 안으로 보임 */
+        }
+
+        .sidebar h2 {
+            margin-top: 0;
+        }
+
+        .close-btn {
+            align-self: flex-end;
+            background-color: #dc3545;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            background-color: #c82333;
+        }
+
+        .sidebar button {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            border: none;
+            color: white;
+        }
+
+        .on-state {
+            background-color: #28a745; /* 초록색 */
+        }
+
+        .off-state {
+            background-color: #dc3545; /* 빨간색 */
+        }
+
+        .sidebar button:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <h1>신호등 제어</h1>
+    <p>여기에서 신호등 LED를 제어할 수 있습니다. (자동 모드), (수동 모드), (종료 모드)</p>
+
+    <!-- 메인 버튼 컨테이너 -->
+    <div class="button-container">
+        <button class="button-auto" onclick="startAutoMode()">자동 모드</button>
+        <button class="button-manual" onclick="toggleSidebar()">수동 모드</button>
+        <button class="button-end" onclick="startEndMode()">종료 모드</button>
+    </div>
+
+    <!-- 수동 모드 사이드바 -->
+    <div class="sidebar" id="manualModeSidebar">
+        <button class="close-btn" onclick="toggleSidebar()">닫기</button>
+        <h2>수동 모드 설정</h2>
+        <p>수동 모드에서 신호등을 제어할 수 있습니다.</p>
+        <button class="off-state" id="blinker1" onclick="toggleButtonState(this)">신호등 1</button>
+        <button class="off-state" id="blinker2" onclick="toggleButtonState(this)">신호등 2</button>
+        <button class="off-state" id="blinker3" onclick="toggleButtonState(this)">신호등 3</button>
+        <button class="off-state" id="blinker4" onclick="toggleButtonState(this)">신호등 4</button>
+    </div>
+
+    <script>
+        // 자동 모드 실행
+        function startAutoMode() {
+            alert('자동 모드가 시작되었습니다.');
+            resetAllModes(); // 모든 모드 초기화
+            // TODO: 자동 모드 동작 추가 (예: 신호등 자동 제어 로직 삽입)
+        }
+    
+        // 종료 모드 실행
+        function startEndMode() {
+            alert('종료 모드가 시작되었습니다.');
+            resetAllModes(); // 모든 모드 초기화
+            // TODO: 종료 모드 동작 추가 (예: 시스템 종료 관련 로직 삽입)
+        }
+    
+        // 사이드바 표시/숨기기
+        function toggleSidebar() {
+            const sidebar = document.getElementById('manualModeSidebar'); // 사이드바 요소 가져오기
+            sidebar.classList.toggle('active'); // 'active' 클래스 추가/제거로 열고 닫기 제어
+        }
+    
+        // 버튼 ON/OFF 상태 토글
+        function toggleButtonState(button) {
+            // 현재 버튼이 ON 상태인지 확인
+            const Light_On = button.classList.contains('on-state'); 
+    
+            if (Light_On) {
+                // 버튼이 ON 상태라면 OFF 상태로 전환
+                button.classList.remove('on-state');
+                button.classList.add('off-state');
+                button.textContent = `신호등 ${button.id.split('blinker')[1]} OFF`; // OFF 상태 텍스트 설정
+                // TODO: OFF 동작에 필요한 로직 추가 (예: 신호등 끄기)
+            } else {
+                // 버튼이 OFF 상태라면 ON 상태로 전환
+                button.classList.remove('off-state');
+                button.classList.add('on-state');
+                button.textContent = `신호등 ${button.id.split('blinker')[1]} ON`; // ON 상태 텍스트 설정
+                // TODO: ON 동작에 필요한 로직 추가 (예: 신호등 켜기)
+            }
+        }
+    
+        // 모든 모드 상태 초기화
+        function resetAllModes() {
+            // 1. 수동 모드 사이드바 초기화
+            const sidebar = document.getElementById('manualModeSidebar'); // 사이드바 요소 가져오기
+            const buttons = sidebar.querySelectorAll('button.off-state, button.on-state'); // 사이드바의 모든 버튼 가져오기
+            buttons.forEach(button => {
+                // 모든 버튼을 OFF 상태로 초기화
+                button.classList.remove('on-state');
+                button.classList.add('off-state');
+                button.textContent = `신호등 ${button.id.split('blinker')[1]}`; // 초기 텍스트 설정
+            });
+    
+            // 사이드바를 닫힌 상태로 설정
+            sidebar.classList.remove('active'); 
+    
+            // 2. 추가적으로 자동 모드, 종료 모드 초기화 로직 삽입 가능
+            // TODO: 예를 들어, 모든 신호등 끄기 또는 다른 상태 초기화 작업 추가 가능
+        }
+    </script>
